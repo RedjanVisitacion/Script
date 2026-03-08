@@ -1,0 +1,138 @@
+Step 1 — Open Terminal in VS Code
+
+In Visual Studio Code:
+
+Click
+
+Terminal → New Terminal
+
+Make sure you are inside the backend folder.
+
+Run:
+
+cd backend
+Step 2 — Create Django Project
+
+Install Django if you haven't:
+
+pip install pymysql
+
+Now create the Django project:
+
+django-admin startproject server .
+
+Your structure will become:
+
+backend
+│
+├── server
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── manage.py
+Step 3 — Create API App
+
+Inside backend terminal run:
+
+python manage.py startapp api
+
+Now the structure:
+
+backend
+│
+├── api
+│   ├── migrations
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   └── apps.py
+│
+├── server
+└── manage.py
+Step 4 — Register App
+
+Open:
+
+server/settings.py
+
+Find:
+
+INSTALLED_APPS
+
+Add:
+
+'api',
+'rest_framework',
+Step 5 — Run Django Server
+
+Run:
+
+python manage.py runserver
+
+Open browser:
+
+http://127.0.0.1:8000
+
+If you see the Django page ✅ backend works.
+
+
+
+
+
+Step 6 — After the server works, the next things we will build are:
+
+Connect Django to MySQL in XAMPP
+
+✅ Step 1 — Edit __init__.py
+
+Open this file:
+
+F:\flutter_django_crud_backup_script\backend\server\__init__.py
+
+Inside the file, add this code:
+
+import pymysql
+pymysql.install_as_MySQLdb()
+
+Your file should look like this:
+
+import pymysql
+pymysql.install_as_MySQLdb()
+
+Save it.
+
+✅ Step 2 — Verify database settings
+
+Open:
+
+backend/server/settings.py
+
+Make sure the database configuration is:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'studentdb',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+✅ Step 3 — Run migration again
+
+In your terminal:
+
+python manage.py migrate
+✅ Expected output
+
+You should see something like:
+
+Applying contenttypes.0001_initial... OK
+Applying auth.0001_initial... OK
+Applying admin.0001_initial... OK
+
+That means **Django successfully connected to your **MariaDB database.
