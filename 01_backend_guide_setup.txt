@@ -1,27 +1,25 @@
+Django + MySQL Backend API Setup Guide (for Flutter CRUD App)
+
 Step 1 — Open Terminal in VS Code
 
-In Visual Studio Code:
+Open Visual Studio Code.
 
-Click
+Click Terminal → New Terminal.
 
-Terminal → New Terminal
-
-Make sure you are inside the backend folder.
-
-Run:
+Make sure you are inside your backend folder:
 
 cd backend
 Step 2 — Create Django Project
 
-Install Django if you haven't:
+Install dependencies if you haven’t already:
 
-pip install pymysql
+pip install django djangorestframework pymysql
 
-Now create the Django project:
+Create a new Django project inside the backend folder:
 
 django-admin startproject server .
 
-Your structure will become:
+Your folder structure should now look like this:
 
 backend
 │
@@ -35,11 +33,11 @@ backend
 └── manage.py
 Step 3 — Create API App
 
-Inside backend terminal run:
+Run the following command in the backend terminal:
 
 python manage.py startapp api
 
-Now the structure:
+Updated structure:
 
 backend
 │
@@ -54,15 +52,11 @@ backend
 └── manage.py
 Step 4 — Register App
 
-Open:
+Open server/settings.py.
 
-server/settings.py
+Find INSTALLED_APPS.
 
-Find:
-
-INSTALLED_APPS
-
-Add:
+Add the following lines:
 
 'api',
 'rest_framework',
@@ -72,45 +66,33 @@ Run:
 
 python manage.py runserver
 
-Open browser:
+Open your browser and go to:
 
 http://127.0.0.1:8000
 
-If you see the Django page ✅ backend works.
+✅ If you see the Django welcome page, your backend is working.
 
+Step 6 — Connect Django to MySQL (XAMPP)
+Step 6.1 — Edit __init__.py
 
-
-
-
-Step 6 — After the server works, the next things we will build are:
-
-Connect Django to MySQL in XAMPP
-
-✅ Step 1 — Edit __init__.py
-
-Open this file:
+Open:
 
 F:\flutter_django_crud_backup_script\backend\server\__init__.py
 
-Inside the file, add this code:
+Add:
 
 import pymysql
 pymysql.install_as_MySQLdb()
 
-Your file should look like this:
+Save the file.
 
-import pymysql
-pymysql.install_as_MySQLdb()
-
-Save it.
-
-✅ Step 2 — Verify database settings
+Step 6.2 — Verify Database Settings
 
 Open:
 
 backend/server/settings.py
 
-Make sure the database configuration is:
+Set your database configuration:
 
 DATABASES = {
     'default': {
@@ -122,17 +104,102 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-✅ Step 3 — Run migration again
+Step 6.3 — Run Migrations
 
 In your terminal:
 
 python manage.py migrate
-✅ Expected output
 
-You should see something like:
+✅ Expected output:
 
 Applying contenttypes.0001_initial... OK
 Applying auth.0001_initial... OK
 Applying admin.0001_initial... OK
 
-That means **Django successfully connected to your **MariaDB database.
+This confirms Django is successfully connected to your MySQL (MariaDB) database.
+
+Step 7 — Create Student Model
+
+Open:
+
+backend/api/models.py
+
+Add:
+
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.CharField(max_length=100)
+    age = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+Step 8 — Make Migrations
+python manage.py makemigrations
+python manage.py migrate
+
+✅ This creates the students table in your MySQL database.
+
+Step 9 — Create Serializer
+
+Create a new file:
+
+backend/api/serializers.py
+
+Add:
+
+from rest_framework import serializers
+from .models import Student
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = '__all__'
+Step 10 — Create API Views
+
+Open:
+
+backend/api/views.py
+
+Add:
+
+from rest_framework import viewsets
+from .models import Student
+from .serializers import StudentSerializer
+
+class StudentViewSet(viewsets.ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+Step 11 — Set Up API URLs
+
+Open:
+
+backend/server/urls.py
+
+Replace the default code with:
+
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from api.views import StudentViewSet
+
+# Create DRF router and register viewsets
+router = DefaultRouter()
+router.register(r'students', StudentViewSet)
+
+# Combine router URLs with other URL patterns
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),  # include the router URLs
+]
+Step 12 — Run Django Server and Test API
+python manage.py runserver
+
+Open in browser:
+
+http://127.0.0.1:8000/api/students/
+
+✅ You should see the JSON response (empty at first), confirming your API is working.
+
+🎉 Congratulations! Your Django backend with MySQL is ready for your Flutter CRUD app.
